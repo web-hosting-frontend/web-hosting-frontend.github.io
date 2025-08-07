@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+  <meta charset="UTF-8">
+  <title>🧠 Sadap Bot Panel (Testing Pribadi)</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    body {
+      background-color: #0d0d0d;
+      font-family: 'Courier New', monospace;
+      color: #00ff99;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      color: #00ffff;
+      margin-bottom: 20px;
+    }
+
+    .container {
+      max-width: 600px;
+      margin: auto;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: bold;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      background-color: #1a1a1a;
+      border: 1px solid #00ff99;
+      color: #00ff99;
+      margin-top: 5px;
+      border-radius: 5px;
+    }
+
+    button {
+      width: 100%;
+      padding: 12px;
+      margin-top: 15px;
+      font-weight: bold;
+      background-color: #00ff99;
+      color: #000;
+      border: none;
+      border-radius: 5px;
+      transition: 0.3s;
+    }
+
+    button:hover {
+      background-color: #00ffaa;
+      cursor: pointer;
+    }
+
+    #status {
+      margin-top: 20px;
+      font-weight: bold;
+      color: yellow;
+      background-color: #222;
+      padding: 10px;
+      border-radius: 5px;
+      text-align: center;
+    }
+
+    footer {
+      margin-top: 50px;
+      font-size: 12px;
+      text-align: center;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧠 Sadap Bot Telegram - Panel Kontrol</h1>
+  <div class="container">
+    <label>🤖 Token Bot Target:</label>
+    <input type="text" id="tokenTarget" placeholder="Token Bot Target">
+
+    <label>🆔 ID Bot Target:</label>
+    <input type="text" id="idTarget" placeholder="ID Bot Target (opsional)" disabled>
+
+    <label>🔑 Token Bot Anda:</label>
+    <input type="text" id="tokenKamu" placeholder="Token Bot Anda">
+
+    <label>👤 ID Telegram Anda:</label>
+    <input type="text" id="idKamu" placeholder="ID Telegram Anda">
+
+    <button onclick="startSadap()">🚀 MULAI SADAP</button>
+    <button onclick="stopSadap()">🛑 STOP SADAP</button>
+    <button onclick="hapusLog()">🧹 HAPUS LOG SADAPAN</button>
+
+    <div id="status">💤 Sistem belum dijalankan...</div>
+  </div>
+
+  <footer>🛡️ Ethical Telegram Testing Only - v1.0</footer>
+
+  <script>
+    const statusEl = document.getElementById("status");
+
+    function showStatus(text, isError = false) {
+      statusEl.textContent = text;
+      statusEl.style.color = isError ? "red" : "yellow";
+    }
+
+    function getInputValues() {
+      return {
+        tokenTarget: document.getElementById("tokenTarget").value.trim(),
+        tokenKamu: document.getElementById("tokenKamu").value.trim(),
+        idKamu: document.getElementById("idKamu").value.trim(),
+      };
+    }
+
+    async function startSadap() {
+      const { tokenTarget, tokenKamu, idKamu } = getInputValues();
+
+      if (!tokenTarget || !tokenKamu || !idKamu) {
+        showStatus("❌ Semua kolom harus diisi.", true);
+        return;
+      }
+
+      try {
+        const res = await fetch("/start", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tokenTarget, tokenKamu, idKamu }),
+        });
+
+        const data = await res.json();
+        showStatus(data.status || "✅ Sadap dimulai.");
+      } catch (err) {
+        showStatus("❌ Gagal mulai sadap: " + err.message, true);
+      }
+    }
+
+    async function stopSadap() {
+      try {
+        const res = await fetch("/stop", { method: "POST" });
+        const data = await res.json();
+        showStatus(data.status || "🛑 Sadap dihentikan.");
+      } catch (err) {
+        showStatus("❌ Gagal stop: " + err.message, true);
+      }
+    }
+
+    async function hapusLog() {
+      if (!confirm("⚠️ Yakin ingin menghapus log sadapan?")) return;
+
+      try {
+        const res = await fetch("/hapus-log", { method: "POST" });
+        const data = await res.json();
+        showStatus(data.status || "🧹 Log berhasil dihapus.");
+      } catch (err) {
+        showStatus("❌ Gagal hapus log: " + err.message, true);
+      }
+    }
+  </script>
+</body>
+</html>
